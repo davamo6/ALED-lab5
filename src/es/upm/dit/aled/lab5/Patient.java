@@ -164,7 +164,23 @@ public class Patient extends Thread {
 	 */
 	@Override
 	public void run() {
-		// TODO
+		// Recorremos todos los traslados del protocolo
+	    while (indexProtocol < protocol.size()) {
+	        // 1. Intentar acceder a la ubicación actual
+	        location.enter(this);
+	        // 2. Ser atendido en la ubicación actual
+	        attendedAtLocation(); 
+	        // 3. Salir de la ubicación actual (liberar plaza)
+	        location.exit(this);
+	        // 4. Avanzar al siguiente paso del protocolo
+	        advanceProtocol();
+	    }
+	    // Última ubicación del protocolo (ya no hay más traslados)
+	    location.enter(this);
+	    attendedAtLocation();
+	    location.exit(this);
+	    // Eliminar al paciente de la interfaz gráfica al darle el alta
+	    EmergencyRoomGUI.getInstance().removePatient(this);
 	}
 
 }

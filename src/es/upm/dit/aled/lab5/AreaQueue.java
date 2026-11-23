@@ -14,5 +14,31 @@ import es.upm.dit.aled.lab5.gui.Position2D;
  */
 public class AreaQueue extends Area {
 
-	// TODO
+	private Queue<Patient> waitQueue;
+	
+	public AreaQueue(String name, int time, int capacity, Position2D position) {
+		super(name, time, capacity, position);
+		this.waitQueue = new LinkedList<Patient>();
+	}
+	
+	@Override
+	public synchronized void enter(Patient p) {
+		try {
+			// 1. El paciente llega y se coloca al final de la cola de espera
+			waitQueue.add(p);
+			// 2. Si el área está llena o no es su turno (no es el primero en la cola), debe esperar
+			if (numPatients >= capacity || waitQueue.peek() != p) {
+				waiting++;
+				while (numPatients >= capacity || waitQueue.peek() != p) {
+					wait();
+				}
+				waiting--;
+			}
+			// 3. Ya hay plaza libre y es el primero de la cola: sale de la cola y entra al área
+			waitQueue.remove();
+			numPatients++;
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 }
